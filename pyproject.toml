@@ -1,0 +1,17 @@
+[project]
+name = "chemsynth"
+version = "1.0.0"
+description = "Find the reagents and conditions for an AQA A-level organic synthesis, step by step"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+chemsynth = "chemsynth.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["chemsynth"]

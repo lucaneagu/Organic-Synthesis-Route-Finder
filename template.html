@@ -1,0 +1,1027 @@
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Organic Synthesis Route Finder</title>
+<style>
+  /* ---------------------------------------------------------------
+     Palette taken from the reaction every A-level student watches:
+     orange dichromate(VI) oxidising to green chromium(III).
+     --------------------------------------------------------------- */
+  :root {
+    --paper: #eef2ef;
+    --card: #ffffff;
+    --card-2: #f6f8f6;
+    --ink: #111a16;
+    --ink-soft: #46564f;
+    --ink-faint: #6f807a;
+    --rule: #d3ddd7;
+    --rule-strong: #b3c2ba;
+    --accent: #c25400;          /* dichromate orange */
+    --accent-soft: #fbeadc;
+    --product: #1c7048;         /* chromium(III) green */
+    --product-soft: #e0efe6;
+    --warn: #8a5a00;
+    --warn-soft: #fdf1d8;
+    --shadow: 0 1px 2px rgba(17, 26, 22, .06), 0 8px 24px -12px rgba(17, 26, 22, .18);
+
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0e1412;
+      --card: #161e1a;
+      --card-2: #1b2521;
+      --ink: #e7efea;
+      --ink-soft: #a9b8b1;
+      --ink-faint: #7d8d86;
+      --rule: #2a3733;
+      --rule-strong: #3d4d47;
+      --accent: #ff9040;
+      --accent-soft: #34220f;
+      --product: #58bd8a;
+      --product-soft: #12281d;
+      --warn: #e0b45f;
+      --warn-soft: #2c2314;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #0e1412;
+    --card: #161e1a;
+    --card-2: #1b2521;
+    --ink: #e7efea;
+    --ink-soft: #a9b8b1;
+    --ink-faint: #7d8d86;
+    --rule: #2a3733;
+    --rule-strong: #3d4d47;
+    --accent: #ff9040;
+    --accent-soft: #34220f;
+    --product: #58bd8a;
+    --product-soft: #12281d;
+    --warn: #e0b45f;
+    --warn-soft: #2c2314;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  /* ------------------------------------------------------- masthead */
+
+  header { display: flex; flex-direction: column; gap: .5rem; }
+
+  .eyebrow {
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.08;
+    letter-spacing: -.015em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    margin: 0;
+    max-width: 40rem;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+  }
+
+  /* --------------------------------------------------- search panel */
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: .75rem;
+    align-items: end;
+  }
+
+  .field { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+
+  label {
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+  }
+
+  input[type="text"] {
+    width: 100%;
+    font: inherit;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--ink);
+    background: var(--card-2);
+    border: 1px solid var(--rule-strong);
+    border-radius: 6px;
+    padding: .6rem .7rem;
+  }
+
+  input[type="text"]:focus-visible,
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .swap {
+    height: 2.6rem;
+    width: 2.6rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule-strong);
+    background: var(--card-2);
+    color: var(--ink-soft);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform .18s ease, color .18s ease;
+  }
+
+  .swap:hover { color: var(--accent); transform: rotate(180deg); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+
+  .go {
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: .01em;
+    color: var(--card);
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: .6rem 1.4rem;
+    cursor: pointer;
+  }
+
+  .go:hover { filter: brightness(1.08); }
+
+  .routes-choice {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .85rem;
+    color: var(--ink-soft);
+    margin-left: auto;
+  }
+
+  .routes-choice select {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card-2);
+    border: 1px solid var(--rule-strong);
+    border-radius: 5px;
+    padding: .25rem .4rem;
+  }
+
+  .examples { display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; }
+
+  .examples span {
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-right: .25rem;
+  }
+
+  .chip {
+    font: inherit;
+    font-size: .84rem;
+    font-family: var(--font-display);
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: .2rem .7rem;
+    cursor: pointer;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* -------------------------------------------------------- results */
+
+  .summary-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .5rem 1rem;
+    padding-bottom: .9rem;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .summary-bar h2 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+
+  .summary-bar .meta {
+    font-size: .82rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+  }
+
+  .overall {
+    font-family: var(--font-display);
+    font-size: .95rem;
+    color: var(--ink-soft);
+    background: var(--card-2);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--product);
+    border-radius: 0 6px 6px 0;
+    padding: .7rem .9rem;
+    overflow-x: auto;
+  }
+
+  .steps { display: flex; flex-direction: column; gap: 0; }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 0 1rem;
+    padding: 1.4rem 0;
+  }
+
+  .step + .step { border-top: 1px solid var(--rule); }
+
+  .step-no {
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 50%;
+    width: 2.1rem;
+    height: 2.1rem;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step-body { display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    line-height: 1.3;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .step-title .to { color: var(--product); }
+  .step-title .sep { color: var(--ink-faint); font-weight: 400; padding: 0 .2rem; }
+
+  /* The reaction arrow: reagents above the line, conditions below - the
+     way it is written on the board and in the textbook. */
+  .rxn {
+    display: grid;
+    grid-template-columns: auto minmax(6rem, 1fr) auto;
+    align-items: center;
+    gap: 0 .8rem;
+    background: var(--card-2);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1rem .9rem;
+    overflow-x: auto;
+  }
+
+  .rxn .formula {
+    font-family: var(--font-mono);
+    font-size: .95rem;
+    white-space: nowrap;
+  }
+
+  .rxn .formula.to { color: var(--product); }
+
+  .arrow { display: flex; flex-direction: column; gap: .3rem; min-width: 6rem; }
+
+  .arrow .over, .arrow .under {
+    font-size: .78rem;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  .arrow .over { font-weight: 600; color: var(--ink); }
+
+  .arrow .line {
+    position: relative;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+
+  .arrow .line::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 6px solid var(--rule-strong);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+
+  .facts {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    font-size: .9rem;
+  }
+
+  .fact { display: grid; grid-template-columns: 5.5rem 1fr; gap: .75rem; }
+
+  .fact dt {
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding-top: .25rem;
+  }
+
+  .fact dd { margin: 0; color: var(--ink-soft); }
+  .fact dd.strong { color: var(--ink); }
+
+  .tag {
+    display: inline-block;
+    font-size: .74rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: .1rem .45rem;
+  }
+
+  .tag.carbon { color: var(--accent); background: var(--accent-soft); }
+  .tag.spec { color: var(--ink-faint); background: var(--card-2); border: 1px solid var(--rule); }
+  .tag.warn { color: var(--warn); background: var(--warn-soft); }
+
+  details.alt {
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+    margin-top: .5rem;
+  }
+
+  details.alt summary {
+    cursor: pointer;
+    font-size: .8rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+  }
+
+  details.alt summary:hover { color: var(--accent); }
+
+  .notice {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .notice h2 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .notice p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+
+  .notice .suggestions { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+    font-size: .82rem;
+    color: var(--ink-faint);
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+  }
+
+  footer code {
+    font-family: var(--font-mono);
+    font-size: .95em;
+    background: var(--card-2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: .05rem .3rem;
+  }
+
+  sub { font-size: .72em; line-height: 0; }
+
+  @media (max-width: 640px) {
+    .fields { grid-template-columns: 1fr; }
+    .swap { justify-self: start; transform: rotate(90deg); }
+    .swap:hover { transform: rotate(270deg); }
+    .rxn { grid-template-columns: 1fr; gap: .6rem; text-align: center; }
+    .rxn .formula { white-space: normal; }
+    .fact { grid-template-columns: 1fr; gap: .1rem; }
+    .fact dt { padding-top: 0; }
+    .summary-bar .meta { margin-left: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">AQA A-level Chemistry &middot; 3.3 Organic synthesis</p>
+    <h1>Organic Synthesis Route Finder</h1>
+    <p class="standfirst">
+      Say what you have and what you want to make. You get every step in
+      between, with the reagents and conditions an examiner expects you to
+      quote.
+    </p>
+  </header>
+
+  <form class="panel" id="form">
+    <div class="fields">
+      <div class="field">
+        <label for="start">Starting chemical</label>
+        <input type="text" id="start" list="compounds" autocomplete="off"
+               spellcheck="false" placeholder="propene" />
+      </div>
+      <button type="button" class="swap" id="swap" title="Swap the two chemicals"
+              aria-label="Swap the two chemicals">&#8646;</button>
+      <div class="field">
+        <label for="target">Target chemical</label>
+        <input type="text" id="target" list="compounds" autocomplete="off"
+               spellcheck="false" placeholder="butanoic acid" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="go">Find the route</button>
+      <span class="routes-choice">
+        <label for="count" style="text-transform:none;letter-spacing:0;font-size:.85rem;font-weight:400;color:var(--ink-soft)">Show</label>
+        <select id="count">
+          <option value="1">best route</option>
+          <option value="3" selected>up to 3 routes</option>
+          <option value="5">up to 5 routes</option>
+        </select>
+      </span>
+    </div>
+
+    <div class="examples" id="examples"><span>Try</span></div>
+  </form>
+
+  <datalist id="compounds"></datalist>
+
+  <main id="output" aria-live="polite"></main>
+
+  <footer>
+    <div>
+      Every route uses only reactions named in AQA specification section 3.3.
+      Steps beyond the core specification are flagged where they appear.
+    </div>
+    <div>
+      A revision aid, not a lab manual: it does not know about safety, yield or
+      purification. Command line version:
+      <code>python3 -m chemsynth propene "butanoic acid"</code>
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+const DATA = /*__DATA__*/{};
+const GROUPS = DATA.groups;
+const REACTIONS = DATA.reactions;
+const NAMES = DATA.names;
+const LOOKUP = DATA.lookup;
+const UNSUPPORTED = DATA.unsupported;
+const CARBON_HEADROOM = 2;
+
+const BY_START = {};
+for (const r of REACTIONS) (BY_START[r.start] ||= []).push(r);
+
+/* ----------------------------------------------------------- species */
+
+function key(group, carbons, acyl) {
+  return group + "|" + (carbons == null ? "" : carbons) + "|" + (acyl == null ? "" : acyl);
+}
+
+function nameOf(group, carbons, acyl) {
+  const entry = NAMES[key(group, carbons, acyl)];
+  if (entry) return entry.name;
+  return "a " + GROUPS[group].label;
+}
+
+function formulaOf(group, carbons, acyl) {
+  const entry = NAMES[key(group, carbons, acyl)];
+  return entry ? entry.formula : "";
+}
+
+/** Write the digits in a chemical formula as subscripts. */
+function subscript(text) {
+  return escapeHtml(text).replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>");
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"]/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* ------------------------------------------------------------ parser */
+
+function normalise(text) {
+  return text.trim().toLowerCase()
+    .replace(/[‐‑‒–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/^(a|an|the|some)\s+/, "")
+    .trim();
+}
+
+function editDistance(a, b) {
+  const previous = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = previous[0];
+    previous[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const carried = previous[j];
+      previous[j] = Math.min(
+        previous[j] + 1,
+        previous[j - 1] + 1,
+        diagonal + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+      diagonal = carried;
+    }
+  }
+  return previous[b.length];
+}
+
+function suggestionsFor(text) {
+  const scored = [];
+  for (const candidate of Object.keys(LOOKUP)) {
+    if (Math.abs(candidate.length - text.length) > 4) continue;
+    const distance = editDistance(text, candidate);
+    if (distance <= 3) scored.push([distance, candidate]);
+  }
+  scored.sort((a, b) => a[0] - b[0] || a[1].length - b[1].length);
+  return scored.slice(0, 4).map(entry => entry[1]);
+}
+
+function parseSpecies(text) {
+  if (!text || !text.trim()) return { error: "Type the name of a chemical." };
+  const s = normalise(text);
+  if (UNSUPPORTED[s]) return { error: UNSUPPORTED[s] };
+  const found = LOOKUP[s] || LOOKUP[s.replace(/s$/, "")];
+  if (found) {
+    const [group, carbons, acyl] = found.split("|");
+    return {
+      species: {
+        group,
+        carbons: carbons === "" ? null : Number(carbons),
+        acyl: acyl === "" ? null : Number(acyl),
+      },
+    };
+  }
+  return {
+    error: "I do not recognise “" + text.trim() + "”.",
+    suggestions: suggestionsFor(s),
+  };
+}
+
+/* ------------------------------------------------------------ search */
+
+function esterSuccessors(reaction, state, maxCarbons) {
+  const [, carbons, acyl, lineage] = state;
+  if (carbons == null) return [[reaction.end, null, null, null]];
+  const out = [];
+
+  if (reaction.rule === "ester_from_alcohol") {
+    for (let acid = 1; acid <= maxCarbons - carbons; acid++) {
+      out.push(["ester", carbons + acid, acid, "alkyl"]);
+    }
+    return out;
+  }
+  if (reaction.rule === "ester_from_acid" || reaction.rule === "ester_from_acyl") {
+    for (let alcohol = 1; alcohol <= maxCarbons - carbons; alcohol++) {
+      out.push(["ester", carbons + alcohol, carbons, "acyl"]);
+    }
+    return out;
+  }
+
+  const splits = [];
+  if (acyl == null) {
+    for (let a = 1; a < carbons; a++) splits.push([a, carbons - a]);
+  } else {
+    splits.push([acyl, carbons - acyl]);
+  }
+
+  if (reaction.rule === "ester_to_alcohol") {
+    if (lineage === "acyl") return out;
+    for (const [, alkyl] of splits) if (alkyl >= 1) out.push([reaction.end, alkyl, null, null]);
+    return out;
+  }
+  if (lineage === "alkyl") return out;
+  for (const [acid] of splits) if (acid >= 1) out.push([reaction.end, acid, null, null]);
+  return out;
+}
+
+function successors(state, maxCarbons) {
+  const [group, carbons] = state;
+  const out = [];
+  for (const reaction of BY_START[group] || []) {
+    if (carbons != null) {
+      if (reaction.cmin != null && carbons < reaction.cmin) continue;
+      if (reaction.cmax != null && carbons > reaction.cmax) continue;
+    }
+    if (reaction.rule) {
+      for (const next of esterSuccessors(reaction, state, maxCarbons)) {
+        if (next[1] == null || (next[1] >= 1 && next[1] <= maxCarbons)) out.push([next, reaction]);
+      }
+      continue;
+    }
+    if (carbons == null) {
+      out.push([[reaction.end, null, null, null], reaction]);
+      continue;
+    }
+    const low = reaction.dmin == null ? 1 - carbons : reaction.dmin;
+    const high = reaction.dmax == null ? maxCarbons - carbons : reaction.dmax;
+    for (let delta = low; delta <= high; delta++) {
+      const carbonsNow = carbons + delta;
+      if (carbonsNow >= 1 && carbonsNow <= maxCarbons) {
+        out.push([[reaction.end, carbonsNow, null, null], reaction]);
+      }
+    }
+  }
+  return out;
+}
+
+function stateKey(state) {
+  return state.map(part => (part == null ? "" : part)).join("|");
+}
+
+function buildRoute(trail, startState) {
+  const steps = [];
+  let current = startState;
+  for (const [state, reaction] of trail) {
+    steps.push({
+      reaction,
+      from: { group: current[0], carbons: current[1], acyl: current[2] },
+      to: { group: state[0], carbons: state[1], acyl: state[2] },
+    });
+    current = state;
+  }
+  return {
+    steps,
+    length: steps.length,
+    cost: steps.reduce((total, step) => total + step.reaction.cost, 0),
+    signature: steps.map(s => s.reaction.id + ":" + s.to.carbons + ":" + s.to.acyl).join(">"),
+    usesExtension: steps.some(s => s.reaction.status !== "core"),
+  };
+}
+
+function setup(start, target) {
+  const startState = [start.group, start.carbons, start.acyl, null];
+  const checkCarbons = start.carbons != null && target.carbons != null;
+  const isGoal = state => {
+    if (state[0] !== target.group) return false;
+    if (!checkCarbons) return true;
+    if (state[1] !== target.carbons) return false;
+    if (target.acyl != null && state[2] !== target.acyl) return false;
+    return true;
+  };
+  const counts = [start.carbons, target.carbons].filter(c => c != null);
+  const maxCarbons = (counts.length ? Math.max(...counts) : 6) + CARBON_HEADROOM;
+  return { startState, isGoal, maxCarbons };
+}
+
+function findBest(start, target) {
+  const { startState, isGoal, maxCarbons } = setup(start, target);
+  const startKey = stateKey(startState);
+  const best = { [startKey]: 0 };
+  const cameFrom = {};
+  const queue = [[0, startState]];
+
+  while (queue.length) {
+    let pick = 0;
+    for (let i = 1; i < queue.length; i++) if (queue[i][0] < queue[pick][0]) pick = i;
+    const [cost, state] = queue.splice(pick, 1)[0];
+    const currentKey = stateKey(state);
+    if (cost > (best[currentKey] ?? Infinity)) continue;
+
+    if (isGoal(state) && currentKey !== startKey) {
+      const trail = [];
+      let node = currentKey;
+      let nodeState = state;
+      while (node !== startKey) {
+        const [previousState, reaction] = cameFrom[node];
+        trail.push([nodeState, reaction]);
+        nodeState = previousState;
+        node = stateKey(previousState);
+      }
+      trail.reverse();
+      return buildRoute(trail, startState);
+    }
+
+    for (const [next, reaction] of successors(state, maxCarbons)) {
+      const nextKey = stateKey(next);
+      const nextCost = cost + reaction.cost;
+      if (nextCost < (best[nextKey] ?? Infinity)) {
+        best[nextKey] = nextCost;
+        cameFrom[nextKey] = [state, reaction];
+        queue.push([nextCost, next]);
+      }
+    }
+  }
+  return null;
+}
+
+function findRoutes(start, target, limit) {
+  if (start.group === target.group && start.carbons === target.carbons &&
+      (target.acyl == null || start.acyl === target.acyl)) {
+    return [{ steps: [], length: 0, cost: 0, signature: "", usesExtension: false }];
+  }
+  const best = findBest(start, target);
+  if (!best) return null;
+  if (limit <= 1) return [best];
+
+  const { startState, isGoal, maxCarbons } = setup(start, target);
+  const maxDepth = best.length + 1;
+  const found = { [best.signature]: best };
+  let budget = 120000;
+
+  const walk = (state, trail, seen) => {
+    if (budget <= 0 || trail.length >= maxDepth) return;
+    for (const [next, reaction] of successors(state, maxCarbons)) {
+      if (--budget <= 0) return;
+      const nextKey = stateKey(next);
+      if (seen.has(nextKey)) continue;
+      trail.push([next, reaction]);
+      if (isGoal(next)) {
+        const route = buildRoute(trail, startState);
+        if (!(route.signature in found)) found[route.signature] = route;
+      } else {
+        seen.add(nextKey);
+        walk(next, trail, seen);
+        seen.delete(nextKey);
+      }
+      trail.pop();
+    }
+  };
+  walk(startState, [], new Set([stateKey(startState)]));
+
+  return Object.values(found)
+    .sort((a, b) => a.length - b.length || a.cost - b.cost ||
+                    a.signature.localeCompare(b.signature))
+    .slice(0, limit);
+}
+
+/* --------------------------------------------------------- rendering */
+
+const output = document.getElementById("output");
+
+function speciesName(part) {
+  return nameOf(part.group, part.carbons, part.acyl);
+}
+
+function renderStep(step, number) {
+  const reaction = step.reaction;
+  const fromName = speciesName(step.from);
+  const toName = speciesName(step.to);
+  const fromFormula = formulaOf(step.from.group, step.from.carbons, step.from.acyl);
+  const toFormula = formulaOf(step.to.group, step.to.carbons, step.to.acyl);
+
+  const facts = [];
+  facts.push(`<div class="fact"><dt>Type</dt><dd class="strong">${escapeHtml(reaction.type)}</dd></div>`);
+
+  if (step.from.carbons != null && step.to.carbons != null &&
+      step.from.carbons !== step.to.carbons) {
+    const delta = step.to.carbons - step.from.carbons;
+    const plural = Math.abs(delta) === 1 ? "" : "s";
+    const wording = reaction.rule
+      ? `the other reactant contributes ${Math.abs(delta)} carbon${plural}`
+      : `chain ${delta > 0 ? "lengthened" : "shortened"} by ${Math.abs(delta)} carbon${plural}`;
+    facts.push(`<div class="fact"><dt>Carbons</dt><dd><span class="tag carbon">${wording}</span></dd></div>`);
+  }
+
+  if (reaction.note) {
+    facts.push(`<div class="fact"><dt>Watch out</dt><dd>${escapeHtml(reaction.note)}</dd></div>`);
+  }
+
+  const flag = reaction.status !== "core"
+    ? ` <span class="tag warn">beyond the core spec</span>` : "";
+  facts.push(`<div class="fact"><dt>Spec</dt><dd><span class="tag spec">AQA ${escapeHtml(reaction.spec)}</span>${flag}</dd></div>`);
+
+  const arrow = `
+      <div class="arrow">
+        <div class="over">${subscript(reaction.reagents)}</div>
+        <div class="line"></div>
+        <div class="under">${subscript(reaction.conditions)}</div>
+      </div>`;
+
+  const reactionBlock = (fromFormula && toFormula) ? `
+    <div class="rxn">
+      <div class="formula">${subscript(fromFormula)}</div>
+      ${arrow}
+      <div class="formula to">${subscript(toFormula)}</div>
+    </div>` : `
+    <div class="rxn" style="grid-template-columns:1fr">${arrow}</div>`;
+
+  return `
+    <section class="step">
+      <div class="step-no">${number}</div>
+      <div class="step-body">
+        <h3 class="step-title">${escapeHtml(fromName)}<span class="sep">&rarr;</span><span class="to">${escapeHtml(toName)}</span></h3>
+        ${reactionBlock}
+        <dl class="facts">${facts.join("")}</dl>
+      </div>
+    </section>`;
+}
+
+function renderRoute(route) {
+  return `<div class="steps">${route.steps.map((step, i) => renderStep(step, i + 1)).join("")}</div>`;
+}
+
+function renderOverall(route) {
+  const names = [speciesName(route.steps[0].from)]
+    .concat(route.steps.map(step => speciesName(step.to)));
+  return `<div class="overall">${names.map(escapeHtml).join(" &nbsp;&rarr;&nbsp; ")}</div>`;
+}
+
+function notice(title, message, suggestions) {
+  const chips = (suggestions || []).map(s =>
+    `<button type="button" class="chip" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`
+  ).join("");
+  return `<div class="notice">
+      <h2>${escapeHtml(title)}</h2>
+      <p>${escapeHtml(message)}</p>
+      ${chips ? `<div class="suggestions">${chips}</div>` : ""}
+    </div>`;
+}
+
+function show(html) {
+  output.innerHTML = html;
+}
+
+function run() {
+  const startText = document.getElementById("start").value;
+  const targetText = document.getElementById("target").value;
+  const limit = Number(document.getElementById("count").value);
+
+  const startParsed = parseSpecies(startText);
+  if (startParsed.error) {
+    show(notice("Check the starting chemical", startParsed.error, startParsed.suggestions));
+    return;
+  }
+  const targetParsed = parseSpecies(targetText);
+  if (targetParsed.error) {
+    show(notice("Check the target chemical", targetParsed.error, targetParsed.suggestions));
+    return;
+  }
+
+  const start = startParsed.species;
+  const target = targetParsed.species;
+  const routes = findRoutes(start, target, limit);
+
+  if (!routes) {
+    show(notice(
+      "No route on the AQA map",
+      `Nothing in specification section 3.3 gets you from ${speciesName(start)} to ` +
+      `${speciesName(target)}. Remember that KCN and HCN are the only ways to ` +
+      `lengthen a chain, and they add one carbon at a time.`
+    ));
+    return;
+  }
+
+  const best = routes[0];
+  if (!best.steps.length) {
+    show(notice("Already there", "The starting chemical and the target are the same compound."));
+    return;
+  }
+
+  const startName = speciesName(best.steps[0].from);
+  const endName = speciesName(best.steps[best.steps.length - 1].to);
+  let meta = `${best.length} step${best.length === 1 ? "" : "s"}`;
+  if (start.carbons != null && best.steps[best.steps.length - 1].to.carbons != null) {
+    const finalCarbons = best.steps[best.steps.length - 1].to.carbons;
+    meta += start.carbons === finalCarbons
+      ? ` &middot; carbon chain stays at ${start.carbons}`
+      : ` &middot; carbon chain ${start.carbons} &rarr; ${finalCarbons}`;
+  }
+
+  const warning = best.usesExtension
+    ? `<p class="standfirst"><span class="tag warn">Note</span> this route uses a step beyond the core specification &mdash; check it with your teacher.</p>`
+    : "";
+
+  const alternatives = routes.slice(1).map((route, i) => `
+    <details class="alt">
+      <summary>Alternative ${i + 1} &middot; ${route.length} step${route.length === 1 ? "" : "s"}</summary>
+      ${renderOverall(route)}
+      ${renderRoute(route)}
+    </details>`).join("");
+
+  show(`
+    <div class="summary-bar">
+      <h2>${escapeHtml(startName)} &rarr; ${escapeHtml(endName)}</h2>
+      <div class="meta">${meta}</div>
+    </div>
+    ${warning}
+    ${renderOverall(best)}
+    ${renderRoute(best)}
+    ${alternatives}
+  `);
+}
+
+/* ------------------------------------------------------------ wiring */
+
+const datalist = document.getElementById("compounds");
+datalist.innerHTML = DATA.suggestions
+  .map(name => `<option value="${escapeHtml(name)}"></option>`).join("");
+
+const examples = document.getElementById("examples");
+for (const [from, to] of DATA.examples) {
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "chip";
+  chip.textContent = `${from} → ${to}`;
+  chip.addEventListener("click", () => {
+    document.getElementById("start").value = from;
+    document.getElementById("target").value = to;
+    run();
+  });
+  examples.appendChild(chip);
+}
+
+document.getElementById("form").addEventListener("submit", event => {
+  event.preventDefault();
+  run();
+});
+
+document.getElementById("swap").addEventListener("click", () => {
+  const start = document.getElementById("start");
+  const target = document.getElementById("target");
+  [start.value, target.value] = [target.value, start.value];
+  if (start.value || target.value) run();
+});
+
+output.addEventListener("click", event => {
+  const suggestion = event.target.closest("[data-suggest]");
+  if (!suggestion) return;
+  const value = suggestion.getAttribute("data-suggest");
+  const startInput = document.getElementById("start");
+  const targetInput = document.getElementById("target");
+  const heading = output.querySelector(".notice h2").textContent;
+  (heading.includes("target") ? targetInput : startInput).value = value;
+  run();
+});
+
+document.getElementById("start").value = "propene";
+document.getElementById("target").value = "butanoic acid";
+run();
+</script>
