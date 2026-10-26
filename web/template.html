@@ -461,6 +461,298 @@
 
   sub { font-size: .72em; line-height: 0; }
 
+  /* ----------------------------------------------------------- tabs */
+
+  .tabs {
+    display: flex;
+    gap: .25rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  .tab {
+    font: inherit;
+    font-weight: 600;
+    font-size: .95rem;
+    color: var(--ink-faint);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    padding: .55rem .9rem;
+    cursor: pointer;
+  }
+
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  [hidden] { display: none !important; }
+
+  /* ----------------------------------------------------- flash cards */
+
+  .deck-row, .hide-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .6rem 1rem;
+  }
+
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--rule-strong);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .seg button {
+    font: inherit;
+    font-size: .88rem;
+    color: var(--ink-soft);
+    background: var(--card-2);
+    border: none;
+    padding: .4rem .8rem;
+    cursor: pointer;
+  }
+
+  .seg button + button { border-left: 1px solid var(--rule-strong); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--card); font-weight: 600; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .seg .count { opacity: .75; font-variant-numeric: tabular-nums; }
+
+  .score {
+    margin-left: auto;
+    font-size: .88rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .score b { color: var(--ink); }
+
+  .hide-row > span {
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+  }
+
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .9rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  .check input { accent-color: var(--accent); width: 1rem; height: 1rem; margin: 0; }
+
+  .fc {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 1.4rem 1.4rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .fc-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .8rem;
+  }
+
+  .fc-head .meta {
+    margin-left: auto;
+    font-size: .82rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tag.paper { color: var(--accent); background: var(--accent-soft); }
+  .tag.classic { color: var(--product); background: var(--product-soft); }
+
+  .fc-title {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .fc-title .sep { color: var(--ink-faint); font-weight: 400; padding: 0 .3rem; }
+
+  /* The route, laid out top to bottom: compound, arrow, compound ... */
+  .chain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+  .node {
+    border: 1px solid var(--rule-strong);
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .2rem .8rem;
+  }
+
+  .node.given .name { font-family: var(--font-display); font-size: 1.12rem; font-weight: 600; }
+  .node .formula { font-family: var(--font-mono); font-size: .9rem; color: var(--ink-faint); }
+  .node.end { border-color: var(--product); background: var(--product-soft); }
+  .node.end .name { color: var(--product); }
+
+  .node.ask { border-style: dashed; flex-direction: column; align-items: stretch; gap: .4rem; }
+  .node.ask label { font-size: .68rem; }
+  .node.ask input[type="text"] { background: var(--card); }
+  .node.right { border-style: solid; border-color: var(--product); background: var(--product-soft); }
+  .node.wrong { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+
+  .verdict { font-size: .9rem; color: var(--ink-soft); }
+  .verdict b { font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); }
+  .verdict .formula { margin-left: .4rem; }
+
+  .link {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: .9rem;
+    padding: .5rem 0 .5rem .55rem;
+  }
+
+  .link .rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .link .rail::before {
+    content: "";
+    position: absolute;
+    top: -.5rem;
+    bottom: -.2rem;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: var(--rule-strong);
+  }
+
+  .link .rail::after {
+    content: "";
+    position: absolute;
+    bottom: -.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top: 8px solid var(--rule-strong);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+
+  .link .step-no { position: relative; z-index: 1; margin-top: .3rem; }
+
+  .gaps { display: flex; flex-direction: column; gap: .5rem; padding: .3rem 0 .6rem; min-width: 0; }
+
+  .gap {
+    display: grid;
+    grid-template-columns: 6.2rem 1fr;
+    gap: .2rem .75rem;
+    align-items: start;
+    font-size: .95rem;
+  }
+
+  .gap dt {
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding-top: .35rem;
+  }
+
+  .gap dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; min-width: 0; }
+  .gap .answer { color: var(--ink); font-weight: 600; }
+  .gap.type .answer { font-weight: 400; color: var(--ink-soft); }
+
+  .blank {
+    font: inherit;
+    font-size: .88rem;
+    color: var(--ink-faint);
+    background: transparent;
+    border: 1px dashed var(--rule-strong);
+    border-radius: 6px;
+    padding: .25rem .9rem;
+    cursor: pointer;
+  }
+
+  .blank:hover { color: var(--accent); border-color: var(--accent); }
+
+  .mark { display: inline-flex; gap: .3rem; }
+
+  .mark button {
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: .15rem .65rem;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  .mark .yes { color: var(--product); border: 1px solid var(--product); }
+  .mark .no { color: var(--accent); border: 1px solid var(--accent); }
+  .mark .yes:hover { background: var(--product-soft); }
+  .mark .no:hover { background: var(--accent-soft); }
+
+  .result { font-size: .78rem; font-weight: 600; border-radius: 4px; padding: .05rem .45rem; }
+  .result.right { color: var(--product); background: var(--product-soft); }
+  .result.wrong { color: var(--accent); background: var(--accent-soft); }
+
+  .src { font-size: .72rem; color: var(--ink-faint); }
+
+  .fc-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+
+  .ghost {
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 6px;
+    padding: .55rem 1.2rem;
+    cursor: pointer;
+  }
+
+  .ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .ghost.ready { background: var(--ink); color: var(--card); border-color: var(--ink); }
+
+  .fc-actions .tally { margin-left: auto; font-size: .88rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+  .fc-note {
+    border-left: 3px solid var(--product);
+    background: var(--card-2);
+    border-radius: 0 6px 6px 0;
+    padding: .7rem .9rem;
+    font-size: .92rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .fc { padding: 1.1rem 1rem 1rem; }
+    .link { padding-left: .2rem; gap: .6rem; }
+    .gap { grid-template-columns: 1fr; }
+    .gap dt { padding-top: 0; }
+    .score { margin-left: 0; width: 100%; }
+    .fc-actions .tally { margin-left: 0; width: 100%; }
+  }
+
   @media (max-width: 640px) {
     .fields { grid-template-columns: 1fr; }
     .swap { justify-self: start; transform: rotate(90deg); }
@@ -481,13 +773,44 @@
   <header>
     <p class="eyebrow">AQA A-level Chemistry &middot; 3.3 Organic synthesis</p>
     <h1>Organic Synthesis Route Finder</h1>
-    <p class="standfirst">
+    <p class="standfirst" data-for="cards">
+      Synthesis routes from AQA past papers (2019&ndash;2024) and the classic
+      routes examiners keep coming back to, with gaps where the intermediates,
+      reagents and conditions should be. Fill them in, then check.
+    </p>
+    <p class="standfirst" data-for="finder" hidden>
       Say what you have and what you want to make. You get every step in
       between, with the reagents and conditions an examiner expects you to
       quote.
     </p>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="Mode">
+    <button type="button" class="tab" role="tab" id="tab-cards" data-view="cards"
+            aria-controls="cards-view" aria-selected="true">Flash cards</button>
+    <button type="button" class="tab" role="tab" id="tab-finder" data-view="finder"
+            aria-controls="finder-view" aria-selected="false">Route finder</button>
+  </nav>
+
+  <section id="cards-view" role="tabpanel" aria-labelledby="tab-cards"
+           style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="panel">
+      <div class="deck-row">
+        <div class="seg" id="decks" role="group" aria-label="Deck"></div>
+        <div class="score" aria-live="polite">This session: <b id="score">0 / 0</b></div>
+      </div>
+      <div class="hide-row">
+        <span>Gaps for</span>
+        <label class="check"><input type="checkbox" id="hide-compounds" checked /> intermediates</label>
+        <label class="check"><input type="checkbox" id="hide-reagents" checked /> reagents</label>
+        <label class="check"><input type="checkbox" id="hide-conditions" checked /> conditions</label>
+      </div>
+    </div>
+    <article class="fc" id="card" aria-live="polite"></article>
+  </section>
+
+  <section id="finder-view" role="tabpanel" aria-labelledby="tab-finder" hidden
+           style="display:flex;flex-direction:column;gap:1.75rem">
   <form class="panel" id="form">
     <div class="fields">
       <div class="field">
@@ -522,11 +845,19 @@
   <datalist id="compounds"></datalist>
 
   <main id="output" aria-live="polite"></main>
+  </section>
 
   <footer>
     <div>
-      Every route uses only reactions named in AQA specification section 3.3.
-      Steps beyond the core specification are flagged where they appear.
+      Past-paper cards are routes from AQA A-level Chemistry (7405) Papers 2
+      and 3, June 2019&ndash;2024. Only the route is used, not the question
+      wording. Reagents marked &ldquo;mark scheme&rdquo; are what the mark
+      scheme gives; the rest are the standard AQA answer for that reaction.
+    </div>
+    <div>
+      Every route finder route uses only reactions named in AQA specification
+      section 3.3. Steps beyond the core specification are flagged where they
+      appear.
     </div>
     <div>
       A revision aid, not a lab manual: it does not know about safety, yield or
@@ -1027,4 +1358,339 @@ output.addEventListener("click", event => {
 document.getElementById("start").value = "ethene";
 document.getElementById("target").value = "propanoic acid";
 run();
+
+/* ------------------------------------------------------ preferences */
+
+/* Browser storage can be missing or blocked (private windows, previews),
+   so every read and write is allowed to fail quietly. */
+function loadPref(name, fallback) {
+  try {
+    const value = localStorage.getItem("chemsynth." + name);
+    return value === null ? fallback : JSON.parse(value);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function savePref(name, value) {
+  try { localStorage.setItem("chemsynth." + name, JSON.stringify(value)); } catch (e) { /* ignore */ }
+}
+
+/* -------------------------------------------------------------- tabs */
+
+function showView(view) {
+  for (const tab of document.querySelectorAll(".tab")) {
+    const on = tab.dataset.view === view;
+    tab.setAttribute("aria-selected", String(on));
+    tab.tabIndex = on ? 0 : -1;
+  }
+  document.getElementById("cards-view").hidden = view !== "cards";
+  document.getElementById("finder-view").hidden = view !== "finder";
+  for (const p of document.querySelectorAll(".standfirst[data-for]")) p.hidden = p.dataset.for !== view;
+  savePref("view", view);
+}
+
+for (const tab of document.querySelectorAll(".tab")) {
+  tab.addEventListener("click", () => showView(tab.dataset.view));
+  tab.addEventListener("keydown", event => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const other = document.querySelector(`.tab:not([data-view="${tab.dataset.view}"])`);
+    showView(other.dataset.view);
+    other.focus();
+  });
+}
+
+/* ------------------------------------------------------- flash cards */
+
+const CARDS = DATA.cards;
+const DECKS = [
+  { id: "all", label: "All", filter: () => true },
+  { id: "papers", label: "Past papers", filter: card => card.source },
+  { id: "classics", label: "Classics", filter: card => !card.source },
+];
+
+const cardEl = document.getElementById("card");
+const scoreEl = document.getElementById("score");
+const hideBoxes = {
+  compounds: document.getElementById("hide-compounds"),
+  reagents: document.getElementById("hide-reagents"),
+  conditions: document.getElementById("hide-conditions"),
+};
+
+const fc = {
+  deck: loadPref("deck", "all"),
+  order: [],
+  position: 0,
+  right: 0,
+  marked: 0,
+  gaps: [],        // the current card's gaps: { kind, step, state }
+};
+
+for (const [kind, box] of Object.entries(hideBoxes)) {
+  box.checked = loadPref("hide." + kind, true);
+  box.addEventListener("change", () => {
+    savePref("hide." + kind, box.checked);
+    renderCard();
+  });
+}
+
+function shuffle(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function renderDecks() {
+  const seg = document.getElementById("decks");
+  seg.innerHTML = DECKS.map(deck => {
+    const count = CARDS.filter(deck.filter).length;
+    return `<button type="button" data-deck="${deck.id}" aria-pressed="${deck.id === fc.deck}">` +
+      `${deck.label} <span class="count">${count}</span></button>`;
+  }).join("");
+}
+
+document.getElementById("decks").addEventListener("click", event => {
+  const button = event.target.closest("[data-deck]");
+  if (!button) return;
+  fc.deck = button.dataset.deck;
+  savePref("deck", fc.deck);
+  renderDecks();
+  dealDeck();
+});
+
+function dealDeck() {
+  const deck = DECKS.find(d => d.id === fc.deck) || DECKS[0];
+  fc.order = shuffle(CARDS.filter(deck.filter));
+  fc.position = 0;
+  renderCard();
+}
+
+/** Loose comparison for typed names: case, spaces, hyphens, commas and
+    brackets are ignored, so "1,2-dibromopropane" matches "12 dibromopropane". */
+function squash(text) {
+  return normalise(String(text))
+    .replace(/[\s\-,()'′\[\]{}]/g, "");
+}
+
+function isRightCompound(typed, compound) {
+  const s = squash(typed);
+  if (!s) return false;
+  const accepted = [compound.name, ...compound.also];
+  if (accepted.some(name => squash(name) === s)) return true;
+  if (compound.formula && squash(compound.formula) === s) return true;
+  if (compound.key) {
+    const n = normalise(typed);
+    const key = LOOKUP[n] || LOOKUP[n.replace(/s$/, "")];
+    if (key && key === compound.key) return true;
+  }
+  return false;
+}
+
+function sourceLabel(card) {
+  if (!card.source) return `<span class="tag classic">Classic route</span>`;
+  const paper = card.source.paper.endsWith("/2") ? "Paper 2" : "Paper 3";
+  return `<span class="tag paper">AQA ${escapeHtml(card.source.series)} &middot; ${paper} &middot; Q${escapeHtml(card.source.question)}</span>`;
+}
+
+function compoundNode(compound, index, last) {
+  const formula = compound.formula
+    ? `<span class="formula">${subscript(compound.formula)}</span>` : "";
+  const isGap = index > 0 && index < last && hideBoxes.compounds.checked;
+  if (!isGap) {
+    const cls = index === last ? "node given end" : "node given";
+    return `<li class="${cls}"><span class="name">${escapeHtml(compound.name)}</span>${formula}</li>`;
+  }
+  const gapIndex = fc.gaps.push({ kind: "compound", index, state: "open" }) - 1;
+  return `<li class="node ask" data-gap="${gapIndex}">
+      <label for="gap-${gapIndex}">Intermediate ${index}</label>
+      <input type="text" id="gap-${gapIndex}" autocomplete="off" spellcheck="false"
+             placeholder="Name or formula" />
+    </li>`;
+}
+
+function stepGap(kind, step, stepIndex) {
+  const label = kind === "reagents" ? "Reagents" : "Conditions";
+  const text = kind === "reagents" ? step.reagents : step.conditions;
+  if (!hideBoxes[kind].checked) {
+    return `<div class="gap"><dt>${label}</dt><dd><span class="answer">${subscript(text)}</span></dd></div>`;
+  }
+  const gapIndex = fc.gaps.push({ kind, index: stepIndex, state: "open" }) - 1;
+  return `<div class="gap" data-gap="${gapIndex}"><dt>${label}</dt>
+      <dd><button type="button" class="blank" data-reveal="${gapIndex}"
+                  aria-label="Show the ${kind} for step ${stepIndex + 1}">?</button></dd></div>`;
+}
+
+function stepLink(step, stepIndex) {
+  return `<li class="link">
+      <div class="rail"><div class="step-no">${stepIndex + 1}</div></div>
+      <dl class="gaps">
+        ${stepGap("reagents", step, stepIndex)}
+        ${stepGap("conditions", step, stepIndex)}
+        <div class="gap type"><dt>Type</dt><dd>
+          <button type="button" class="blank" data-type="${stepIndex}"
+                  aria-label="Show the reaction type for step ${stepIndex + 1}">hint</button></dd></div>
+      </dl>
+    </li>`;
+}
+
+function renderCard() {
+  const card = fc.order[fc.position];
+  fc.gaps = [];
+  if (!card) {
+    cardEl.innerHTML = notice("No cards", "This deck is empty.");
+    return;
+  }
+
+  const last = card.compounds.length - 1;
+  const items = [];
+  card.compounds.forEach((compound, i) => {
+    items.push(compoundNode(compound, i, last));
+    if (i < last) items.push(stepLink(card.steps[i], i));
+  });
+
+  const steps = card.steps.length;
+  cardEl.innerHTML = `
+    <div class="fc-head">
+      ${sourceLabel(card)}
+      <span class="meta">Card ${fc.position + 1} of ${fc.order.length} &middot; ${steps} step${steps === 1 ? "" : "s"}</span>
+    </div>
+    <h2 class="fc-title">${escapeHtml(card.compounds[0].name)}<span class="sep">&rarr;</span>${escapeHtml(card.compounds[last].name)}</h2>
+    <ol class="chain">${items.join("")}</ol>
+    <div class="fc-actions">
+      <button type="button" class="go" id="check-card">Check my answers</button>
+      <button type="button" class="ghost" id="next-card">Next card &rarr;</button>
+      <span class="tally" id="tally"></span>
+    </div>
+    <p class="fc-note" id="card-note" hidden></p>`;
+
+  if (!fc.gaps.length) {
+    document.getElementById("check-card").hidden = true;
+    finishCard();
+  }
+  updateTally();
+}
+
+function revealStepGap(gapIndex) {
+  const gap = fc.gaps[gapIndex];
+  if (!gap || gap.state !== "open") return;
+  const card = fc.order[fc.position];
+  const step = card.steps[gap.index];
+  const text = gap.kind === "reagents" ? step.reagents : step.conditions;
+  const source = card.source
+    ? `<span class="src">${step.ms ? "mark scheme" : "standard answer"}</span>` : "";
+  gap.state = "revealed";
+  const dd = cardEl.querySelector(`.gap[data-gap="${gapIndex}"] dd`);
+  dd.innerHTML = `<span class="answer">${subscript(text)}</span>${source}
+    <span class="mark" role="group" aria-label="Did you get it?">
+      <button type="button" class="yes" data-mark="${gapIndex}" data-ok="1">Got it</button>
+      <button type="button" class="no" data-mark="${gapIndex}" data-ok="0">Missed it</button>
+    </span>`;
+}
+
+function markGap(gapIndex, ok) {
+  const gap = fc.gaps[gapIndex];
+  if (!gap || gap.state === "right" || gap.state === "wrong") return;
+  gap.state = ok ? "right" : "wrong";
+  fc.marked += 1;
+  if (ok) fc.right += 1;
+  const mark = cardEl.querySelector(`.gap[data-gap="${gapIndex}"] .mark`);
+  if (mark) mark.outerHTML = `<span class="result ${gap.state}">${ok ? "Got it" : "Missed"}</span>`;
+  updateTally();
+}
+
+function checkCompound(gapIndex) {
+  const gap = fc.gaps[gapIndex];
+  if (gap.state !== "open") return;
+  const card = fc.order[fc.position];
+  const compound = card.compounds[gap.index];
+  const node = cardEl.querySelector(`.node[data-gap="${gapIndex}"]`);
+  const typed = node.querySelector("input").value;
+  const ok = isRightCompound(typed, compound);
+  gap.state = ok ? "right" : "wrong";
+  fc.marked += 1;
+  if (ok) fc.right += 1;
+  node.classList.add(ok ? "right" : "wrong");
+  const formula = compound.formula
+    ? `<span class="formula">${subscript(compound.formula)}</span>` : "";
+  const yours = ok || !typed.trim() ? ""
+    : ` &middot; you wrote &ldquo;${escapeHtml(typed.trim())}&rdquo;`;
+  node.innerHTML = `
+    <span class="result ${gap.state}">${ok ? "Right" : typed.trim() ? "Not quite" : "Blank"}</span>
+    <span class="verdict"><b>${escapeHtml(compound.name)}</b>${formula}${yours}</span>`;
+}
+
+function checkCard() {
+  fc.gaps.forEach((gap, i) => {
+    if (gap.kind === "compound") checkCompound(i);
+    else revealStepGap(i);
+  });
+  updateTally();
+}
+
+function updateTally() {
+  scoreEl.textContent = `${fc.right} / ${fc.marked}`;
+  const tally = document.getElementById("tally");
+  if (!tally) return;
+  const done = fc.gaps.filter(g => g.state === "right" || g.state === "wrong");
+  const right = done.filter(g => g.state === "right").length;
+  tally.textContent = fc.gaps.length
+    ? `This card: ${right} / ${done.length} of ${fc.gaps.length} gaps` : "";
+  if (fc.gaps.length && done.length === fc.gaps.length) finishCard();
+}
+
+function finishCard() {
+  const card = fc.order[fc.position];
+  const note = document.getElementById("card-note");
+  if (card.note && note) {
+    note.textContent = card.note;
+    note.hidden = false;
+  }
+  const check = document.getElementById("check-card");
+  if (check) check.hidden = true;
+  const next = document.getElementById("next-card");
+  if (next) next.classList.add("ready");
+}
+
+function nextCard() {
+  fc.position += 1;
+  if (fc.position >= fc.order.length) {
+    fc.order = shuffle(fc.order);
+    fc.position = 0;
+  }
+  renderCard();
+  cardEl.scrollIntoView({ block: "start", behavior: "smooth" });
+  const first = cardEl.querySelector("input");
+  if (first) first.focus({ preventScroll: true });
+}
+
+cardEl.addEventListener("click", event => {
+  const target = event.target;
+  if (target.closest("#check-card")) return checkCard();
+  if (target.closest("#next-card")) return nextCard();
+  const reveal = target.closest("[data-reveal]");
+  if (reveal) return revealStepGap(Number(reveal.dataset.reveal));
+  const mark = target.closest("[data-mark]");
+  if (mark) return markGap(Number(mark.dataset.mark), mark.dataset.ok === "1");
+  const type = target.closest("[data-type]");
+  if (type) {
+    const step = fc.order[fc.position].steps[Number(type.dataset.type)];
+    type.outerHTML = `<span class="answer">${escapeHtml(step.type)}</span>`;
+  }
+});
+
+cardEl.addEventListener("keydown", event => {
+  if (event.key !== "Enter" || event.target.tagName !== "INPUT") return;
+  event.preventDefault();
+  const inputs = Array.from(cardEl.querySelectorAll(".node.ask input"));
+  const i = inputs.indexOf(event.target);
+  if (i >= 0 && i < inputs.length - 1) inputs[i + 1].focus();
+  else checkCard();
+});
+
+renderDecks();
+dealDeck();
+showView(location.hash === "#finder" ? "finder" : loadPref("view", "cards"));
 </script>

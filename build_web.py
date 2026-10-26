@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from chemsynth.flashcards import all_cards
 from chemsynth.parser import (CLASS_ALIASES, NAME_ALIASES, UNSUPPORTED,
                               ParseError, normalise, parse)
 from chemsynth.reactions import REACTIONS
@@ -128,6 +129,36 @@ def build_lookup() -> tuple[dict[str, str], list[str]]:
     return lookup, sorted(suggestions, key=lambda s: (len(s), s))
 
 
+def build_cards() -> list[dict]:
+    """Flash cards.  Classic cards carry species keys, so any name the parser
+    understands counts as a correct answer."""
+    cards = []
+    for card in all_cards():
+        compounds = []
+        for i, compound in enumerate(card.compounds):
+            entry = {"name": compound.name, "formula": compound.formula,
+                     "also": list(compound.also)}
+            if card.species:
+                s = card.species[i]
+                entry["key"] = species_key(s.group, s.carbons, s.acyl)
+            compounds.append(entry)
+        cards.append({
+            "id": card.id,
+            "source": None if card.source is None else {
+                "paper": card.source.paper, "series": card.source.series,
+                "question": card.source.question,
+            },
+            "compounds": compounds,
+            "steps": [
+                {"reagents": s.reagents, "conditions": s.conditions,
+                 "type": s.rxn_type, "ms": s.from_mark_scheme}
+                for s in card.steps
+            ],
+            "note": card.note,
+        })
+    return cards
+
+
 def build_data() -> dict:
     return {
         "groups": {
@@ -152,6 +183,7 @@ def build_data() -> dict:
         "suggestions": build_lookup()[1],
         "unsupported": {normalise(k): v for k, v in UNSUPPORTED.items()},
         "examples": EXAMPLES,
+        "cards": build_cards(),
     }
 
 
@@ -168,6 +200,7 @@ def main() -> None:
     print(f"wrote {OUTPUT.relative_to(ROOT)}  "
           f"({OUTPUT.stat().st_size / 1024:.0f} kB, "
           f"{len(data['reactions'])} reactions, "
+          f"{len(data['cards'])} flash cards, "
           f"{len(data['lookup'])} names understood)")
 
 

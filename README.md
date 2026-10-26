@@ -69,6 +69,24 @@ There is also a **web version**: open [`web/index.html`](web/index.html) in any
 browser. It is a single self-contained file with the same reaction data, so it
 works offline and on a phone.
 
+The web version opens on **flash cards**. Each card lays out a synthesis route
+from top to bottom, with gaps where the intermediates, reagents and conditions
+should be. Type the intermediates (a name or a formula, and common alternative
+names count), tap each reagent and condition gap to reveal it and mark
+yourself, then check. You can choose which kinds of gap to practise.
+
+There are two decks:
+
+- **Past papers**: 17 multi-step routes from AQA A-level Chemistry (7405)
+  Papers 2 and 3, June 2019 to June 2024. Each card names the paper and
+  question, and says which reagents come from the mark scheme and which are
+  the standard answer. Only the route is used, not the question wording.
+- **Classics**: 11 standard routes built from the reaction map, so they always
+  agree with the route finder.
+
+The card data lives in [`chemsynth/flashcards.py`](chemsynth/flashcards.py).
+The route finder is the second tab.
+
 That file is generated, not hand-edited — the reaction map, the compound names
 and the list of names the search box accepts are all taken from the Python
 package, so the two versions cannot drift apart. After changing any chemistry,
@@ -171,7 +189,9 @@ python3 -m unittest discover -s tests
 
 The tests check the naming and formula generation, the name parser, the data in
 the reaction map, and a set of known synthesis routes — including that each
-step's product really is the next step's starting material.
+step's product really is the next step's starting material. They also check
+that every flash card is a complete route, that every past-paper card names a
+real 2019–2024 paper, and that every classic card matches the reaction map.
 
 ## A warning
 

@@ -309,5 +309,63 @@ class TestReactionData(unittest.TestCase):
                     self.assertLessEqual(reaction.delta_min, reaction.delta_max)
 
 
+class TestFlashcards(unittest.TestCase):
+
+    def setUp(self):
+        from chemsynth.flashcards import PAST_PAPER_CARDS, all_cards
+        self.cards = all_cards()
+        self.past = PAST_PAPER_CARDS
+
+    def test_ids_are_unique(self):
+        ids = [card.id for card in self.cards]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_every_card_is_a_complete_route(self):
+        for card in self.cards:
+            with self.subTest(card=card.id):
+                self.assertGreaterEqual(len(card.steps), 1)
+                self.assertEqual(len(card.compounds), len(card.steps) + 1)
+                for compound in card.compounds:
+                    self.assertTrue(compound.name)
+                for step in card.steps:
+                    self.assertTrue(step.reagents)
+                    self.assertTrue(step.conditions)
+                    self.assertTrue(step.rxn_type)
+
+    def test_past_paper_sources_are_real_papers(self):
+        for card in self.past:
+            with self.subTest(card=card.id):
+                self.assertIn(card.source.paper, ("7405/2", "7405/3"))
+                self.assertRegex(card.source.series, r"^June 20(19|2[0-4])$")
+                self.assertRegex(card.source.question, r"^\d\d$")
+
+    def test_every_year_from_2019_to_2024_is_covered(self):
+        years = {card.source.series[-4:] for card in self.past}
+        self.assertEqual(years, {str(y) for y in range(2019, 2025)})
+
+    def test_classic_cards_come_from_the_reaction_map(self):
+        classics = [card for card in self.cards if card.source is None]
+        self.assertGreater(len(classics), 5)
+        for card in classics:
+            with self.subTest(card=card.id):
+                self.assertEqual(len(card.species), len(card.compounds))
+
+    def test_markovnikov_cards_agree_with_the_route_finder(self):
+        """The 2024 paper's but-1-ene + HBr step must match the map."""
+        self.assertEqual(reaction_ids("but-1-ene", "2-bromobutane"),
+                         ["alkene_hydrogen_halide_markovnikov"])
+        self.assertEqual(reaction_ids("2-bromobutane", "butan-2-ol"),
+                         ["haloalkane2_hydrolysis"])
+
+    def test_web_build_includes_every_card(self):
+        import build_web
+        cards = build_web.build_cards()
+        self.assertEqual(len(cards), len(self.cards))
+        for card in cards:
+            if card["source"] is None:
+                for compound in card["compounds"]:
+                    self.assertIn("key", compound)
+
+
 if __name__ == "__main__":
     unittest.main()
