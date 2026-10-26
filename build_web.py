@@ -155,13 +155,13 @@ def build_data() -> dict:
 
 
 def main() -> None:
-    template = TEMPLATE.read_text()
+    template = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/{}"
     if marker not in template:
         raise SystemExit(f"{TEMPLATE} no longer contains the data marker")
 
     payload = json.dumps(build_data(), separators=(",", ":"), ensure_ascii=False)
-    OUTPUT.write_text(template.replace(marker, payload))
+    OUTPUT.write_text(template.replace(marker, payload), encoding="utf-8")
 
     data = build_data()
     print(f"wrote {OUTPUT.relative_to(ROOT)}  "
