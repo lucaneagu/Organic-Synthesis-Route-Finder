@@ -27,7 +27,8 @@ OUTPUT = ROOT / "web" / "index.html"
 MAX_CARBONS = 12
 
 EXAMPLES = [
-    ("propene", "butanoic acid"),
+    ("ethene", "propanoic acid"),
+    ("propene", "propan-2-ol"),
     ("ethanol", "ethanal"),
     ("1-bromopropane", "propan-1-amine"),
     ("benzene", "phenylamine"),

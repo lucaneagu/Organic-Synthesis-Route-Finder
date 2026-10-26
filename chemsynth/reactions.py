@@ -72,6 +72,17 @@ REACTIONS: list[Reaction] = [
              "yield of any one halogenoalkane is poor. Avoid it in a synthesis "
              "if another route exists.",
     ),
+    Reaction(
+        id="alkane_halogenation_secondary",
+        start="alkane", end="haloalkane_secondary",
+        reagents="Cl2 (or Br2)",
+        conditions="UV light (sunlight), gas phase",
+        rxn_type="Free-radical substitution",
+        spec="3.3.2", cost=1.8, carbons_min=3,
+        note="The halogen can replace a hydrogen on any carbon, so a mixture of "
+             "1- and 2-substituted (and poly-substituted) products forms. Avoid "
+             "it in a synthesis if another route exists.",
+    ),
 
     # ---------------------------------------------------------------- alkenes
     Reaction(
@@ -88,10 +99,20 @@ REACTIONS: list[Reaction] = [
         reagents="HBr (or HCl) gas",
         conditions="Room temperature",
         rxn_type="Electrophilic addition",
-        spec="3.3.4",
+        spec="3.3.4", carbons_max=2,
+        note="Ethene is symmetrical, so there is only one possible product.",
+    ),
+    Reaction(
+        id="alkene_hydrogen_halide_markovnikov",
+        start="alkene", end="haloalkane_secondary",
+        reagents="HBr (or HCl) gas",
+        conditions="Room temperature",
+        rxn_type="Electrophilic addition",
+        spec="3.3.4", carbons_min=3,
         note="Markovnikov: the H adds to the carbon that already has more "
-             "hydrogens, so an unsymmetrical alkene gives mainly the secondary "
-             "halogenoalkane (via the more stable carbocation).",
+             "hydrogens, so the halogen ends up on carbon 2. The secondary "
+             "carbocation is more stable than the primary one, so the "
+             "2-halogenoalkane is the major product.",
     ),
     Reaction(
         id="alkene_bromine",
@@ -158,9 +179,30 @@ REACTIONS: list[Reaction] = [
         reagents="Ethanolic NaOH (or KOH)",
         conditions="Heat under reflux in ethanol - no water present",
         rxn_type="Elimination",
-        spec="3.3.3",
+        spec="3.3.3", carbons_min=2,
         note="Hot ethanolic conditions make OH- act as a base rather than a "
              "nucleophile. Substitution is the competing reaction.",
+    ),
+    Reaction(
+        id="haloalkane2_hydrolysis",
+        start="haloalkane_secondary", end="alcohol_secondary",
+        reagents="Aqueous NaOH (or KOH)",
+        conditions="Heat under reflux, in aqueous solution",
+        rxn_type="Nucleophilic substitution",
+        spec="3.3.3",
+        note="The OH replaces the halogen on the same carbon, so a "
+             "2-halogenoalkane gives a secondary alcohol.",
+    ),
+    Reaction(
+        id="haloalkane2_elimination",
+        start="haloalkane_secondary", end="alkene",
+        reagents="Ethanolic NaOH (or KOH)",
+        conditions="Heat under reflux in ethanol - no water present",
+        rxn_type="Elimination",
+        spec="3.3.3",
+        note="A hydrogen can be removed from the carbon on either side, so "
+             "from C4 upwards a mixture of alkenes forms (e.g. but-1-ene and "
+             "E/Z but-2-ene).",
     ),
     Reaction(
         id="haloalkane_cyanide",
@@ -245,7 +287,7 @@ REACTIONS: list[Reaction] = [
     ),
     Reaction(
         id="alcohol2_to_haloalkane",
-        start="alcohol_secondary", end="haloalkane",
+        start="alcohol_secondary", end="haloalkane_secondary",
         reagents="NaBr with conc. H2SO4 (makes HBr in situ)",
         conditions="Heat under reflux",
         rxn_type="Nucleophilic substitution",

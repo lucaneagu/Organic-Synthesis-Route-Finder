@@ -28,6 +28,10 @@ class TestNaming(unittest.TestCase):
             ("alkene", 2, None, "ethene"),
             ("alkene", 4, None, "but-1-ene"),
             ("haloalkane", 1, None, "bromomethane"),
+            ("haloalkane", 2, None, "bromoethane"),
+            ("haloalkane", 3, None, "1-bromopropane"),
+            ("haloalkane_secondary", 3, None, "2-bromopropane"),
+            ("haloalkane_secondary", 4, None, "2-bromobutane"),
             ("alcohol_primary", 2, None, "ethanol"),
             ("alcohol_primary", 3, None, "propan-1-ol"),
             ("alcohol_secondary", 3, None, "propan-2-ol"),
@@ -56,6 +60,8 @@ class TestNaming(unittest.TestCase):
             ("alkene", 2, None, "CH2=CH2"),
             ("alkene", 3, None, "CH3CH=CH2"),
             ("haloalkane", 1, None, "CH3Br"),
+            ("haloalkane_secondary", 3, None, "CH3CHBrCH3"),
+            ("haloalkane_secondary", 4, None, "CH3CH2CHBrCH3"),
             ("alcohol_primary", 1, None, "CH3OH"),
             ("alcohol_primary", 2, None, "CH3CH2OH"),
             ("alcohol_secondary", 3, None, "CH3CH(OH)CH3"),
@@ -87,6 +93,10 @@ class TestParser(unittest.TestCase):
             "propan-2-ol": Species("alcohol_secondary", 3),
             "1-bromopropane": Species("haloalkane", 3),
             "bromoethane": Species("haloalkane", 2),
+            "2-bromopropane": Species("haloalkane_secondary", 3),
+            "2-chlorobutane": Species("haloalkane_secondary", 4),
+            "3-bromopentane": Species("haloalkane_secondary", 5),
+            "2-bromoethane": Species("haloalkane", 2),
             "butanoic acid": Species("carboxylic_acid", 4),
             "propanenitrile": Species("nitrile", 3),
             "ethanal": Species("aldehyde", 2),
@@ -118,9 +128,11 @@ class TestParser(unittest.TestCase):
     def test_formulae(self):
         self.assertEqual(parse("CH3CH2OH"), Species("alcohol_primary", 2))
         self.assertEqual(parse("CH3COOH"), Species("carboxylic_acid", 2))
+        self.assertEqual(parse("CH3CHBrCH3"), Species("haloalkane_secondary", 3))
 
     def test_round_trip_through_names(self):
-        for group in ("alkane", "alkene", "haloalkane", "alcohol_primary",
+        for group in ("alkane", "alkene", "haloalkane", "haloalkane_secondary",
+                      "alcohol_primary",
                       "alcohol_secondary", "aldehyde", "ketone",
                       "carboxylic_acid", "nitrile", "amine_primary", "amide",
                       "acyl_chloride", "hydroxynitrile"):
@@ -166,6 +178,39 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual([s.reaction.id for s in found.steps],
                          ["haloalkane_cyanide", "nitrile_reduction"])
         self.assertEqual(found.end.carbons, 3)
+
+    def test_readme_example(self):
+        self.assertEqual(reaction_ids("ethene", "propanoic acid"),
+                         ["alkene_hydrogen_halide", "haloalkane_cyanide",
+                          "nitrile_hydrolysis"])
+
+    def test_markovnikov_gives_the_2_halogenoalkane(self):
+        self.assertEqual(reaction_ids("propene", "2-bromopropane"),
+                         ["alkene_hydrogen_halide_markovnikov"])
+        self.assertEqual(reaction_ids("ethene", "bromoethane"),
+                         ["alkene_hydrogen_halide"])
+
+    def test_hbr_never_puts_the_halogen_on_carbon_1(self):
+        """Propene + HBr gives 2-bromopropane, so no route may use it for 1-."""
+        for start, target in [("propene", "1-bromopropane"),
+                              ("propene", "propan-1-ol"),
+                              ("propene", "butanoic acid"),
+                              ("but-1-ene", "pentanenitrile")]:
+            with self.subTest(start=start, target=target):
+                self.assertNotIn("alkene_hydrogen_halide",
+                                 reaction_ids(start, target))
+
+    def test_secondary_halogenoalkane_keeps_its_position(self):
+        self.assertEqual(reaction_ids("2-bromopropane", "propan-2-ol"),
+                         ["haloalkane2_hydrolysis"])
+        self.assertEqual(reaction_ids("propan-2-ol", "2-bromopropane"),
+                         ["alcohol2_to_haloalkane"])
+
+    def test_cannot_move_a_group_from_carbon_2_to_carbon_1(self):
+        """The only way across is the messy free-radical step via the alkane."""
+        ids = reaction_ids("propan-2-ol", "propan-1-ol")
+        self.assertIn("alkane_halogenation", ids)
+        self.assertNotIn("haloalkane_hydrolysis", ids[:ids.index("alkane_halogenation")])
 
     def test_aromatic_route(self):
         self.assertEqual(reaction_ids("benzene", "phenylamine"),
@@ -246,6 +291,14 @@ class TestReactionData(unittest.TestCase):
                 self.assertTrue(reaction.conditions)
                 self.assertTrue(reaction.rxn_type)
                 self.assertRegex(reaction.spec, r"^3\.3\.\d+$")
+
+    def test_secondary_halogenoalkanes_make_no_branched_products(self):
+        """KCN or NH3 on a 2-halogenoalkane gives a branched chain, which the
+        straight-chain names used here cannot describe."""
+        for reaction in REACTIONS:
+            if reaction.start == "haloalkane_secondary":
+                with self.subTest(reaction=reaction.id):
+                    self.assertIn(reaction.end, ("alcohol_secondary", "alkene"))
 
     def test_carbon_ranges_are_sensible(self):
         for reaction in REACTIONS:

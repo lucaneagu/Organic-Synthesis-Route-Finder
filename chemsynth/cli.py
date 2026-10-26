@@ -66,7 +66,8 @@ def show_compounds(style: Style) -> None:
     print(style.bold("Names you can type (any chain length from C1 to C10):"))
     print()
     interesting = [
-        "alkane", "alkene", "haloalkane", "alcohol_primary", "alcohol_secondary",
+        "alkane", "alkene", "haloalkane", "haloalkane_secondary",
+        "alcohol_primary", "alcohol_secondary",
         "aldehyde", "ketone", "carboxylic_acid", "ester", "acyl_chloride",
         "amide", "nitrile", "hydroxynitrile", "amine_primary", "benzene",
         "nitrobenzene", "phenylamine", "alkylbenzene",

@@ -35,6 +35,10 @@ CLASS_ALIASES: dict[str, str] = {
     "haloalkanes": "haloalkane",
     "halogenoalkanes": "haloalkane",
     "alkyl halide": "haloalkane",
+    "primary halogenoalkane": "haloalkane",
+    "primary haloalkane": "haloalkane",
+    "secondary halogenoalkane": "haloalkane_secondary",
+    "secondary haloalkane": "haloalkane_secondary",
     "dihaloalkane": "dihaloalkane",
     "dihalogenoalkane": "dihaloalkane",
     "alcohol": "alcohol_primary",
@@ -198,7 +202,11 @@ _PATTERNS: list[tuple[str, str, object]] = [
     # halogenoalkanes
     (rf"^(?:\d+,\d+-)?di(?:{_HALO_RE})({_STEM_RE})ane$", "dihaloalkane",
      lambda m: _stem_carbons(m.group(1))),
-    (rf"^(?:\d+-)?(?:{_HALO_RE})({_STEM_RE})ane$", "haloalkane",
+    # A halogen on carbon 2 or 3 is secondary; parse() turns "2-bromoethane"
+    # (really bromoethane) back into the primary compound.
+    (rf"^[23]-(?:{_HALO_RE})({_STEM_RE})ane$", "haloalkane_secondary",
+     lambda m: _stem_carbons(m.group(1))),
+    (rf"^(?:1-)?(?:{_HALO_RE})({_STEM_RE})ane$", "haloalkane",
      lambda m: _stem_carbons(m.group(1))),
 
     # addition polymers: poly(ethene), polyethene
@@ -287,6 +295,8 @@ def parse(text: str) -> Species:
             result = carbons_of(m)
             if isinstance(result, tuple):
                 return Species(group, result[0], result[1])
+            if group == "haloalkane_secondary" and result < 3:
+                group = "haloalkane"
             return Species(group, result)
 
     by_formula = _formula_lookup(text)

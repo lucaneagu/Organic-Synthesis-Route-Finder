@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Organic Synthesis Route Finder</title>
 <style>
@@ -490,14 +493,14 @@
       <div class="field">
         <label for="start">Starting chemical</label>
         <input type="text" id="start" list="compounds" autocomplete="off"
-               spellcheck="false" placeholder="propene" />
+               spellcheck="false" placeholder="ethene" />
       </div>
       <button type="button" class="swap" id="swap" title="Swap the two chemicals"
               aria-label="Swap the two chemicals">&#8646;</button>
       <div class="field">
         <label for="target">Target chemical</label>
         <input type="text" id="target" list="compounds" autocomplete="off"
-               spellcheck="false" placeholder="butanoic acid" />
+               spellcheck="false" placeholder="propanoic acid" />
       </div>
     </div>
 
@@ -528,7 +531,7 @@
     <div>
       A revision aid, not a lab manual: it does not know about safety, yield or
       purification. Command line version:
-      <code>python3 -m chemsynth propene "butanoic acid"</code>
+      <code>python3 -m chemsynth ethene "propanoic acid"</code>
     </div>
   </footer>
 </div>
@@ -1021,7 +1024,7 @@ output.addEventListener("click", event => {
   run();
 });
 
-document.getElementById("start").value = "propene";
-document.getElementById("target").value = "butanoic acid";
+document.getElementById("start").value = "ethene";
+document.getElementById("target").value = "propanoic acid";
 run();
 </script>

@@ -37,6 +37,7 @@ GROUPS: dict[str, Group] = {
         Group("alkane", "alkane", "C-C single bonds only", "3.3.2"),
         Group("alkene", "alkene", "C=C", "3.3.4"),
         Group("haloalkane", "halogenoalkane", "C-X (X = Cl, Br, I)", "3.3.3"),
+        Group("haloalkane_secondary", "secondary halogenoalkane", "R2CH-X", "3.3.3"),
         Group("dihaloalkane", "dihalogenoalkane", "X-C-C-X on adjacent carbons", "3.3.4"),
         Group("alcohol_primary", "primary alcohol", "R-CH2-OH", "3.3.5"),
         Group("alcohol_secondary", "secondary alcohol", "R2CH-OH", "3.3.5"),
@@ -146,7 +147,11 @@ def name_of(group: str, carbons: int | None, acyl: int | None = None) -> str:
             return _generic(group)
         return f"{s}ene" if carbons <= 3 else f"{s}-1-ene"
     if group == "haloalkane":
-        return f"bromo{s}ane" if carbons == 1 else f"1-bromo{s}ane"
+        return f"bromo{s}ane" if carbons <= 2 else f"1-bromo{s}ane"
+    if group == "haloalkane_secondary":
+        if carbons < 3:
+            return _generic(group)
+        return f"2-bromo{s}ane"
     if group == "dihaloalkane":
         return f"1,2-dibromo{s}ane"
     if group == "alcohol_primary":
@@ -281,6 +286,10 @@ def formula_of(group: str, carbons: int | None, acyl: int | None = None) -> str:
         return _tidy(alkyl(carbons - 2) + "CH=CH2")
     if group == "haloalkane":
         return _tidy(r + "CH2Br")
+    if group == "haloalkane_secondary":
+        if carbons < 3:
+            return ""
+        return _tidy(alkyl(carbons - 2) + "CHBrCH3")
     if group == "dihaloalkane":
         if carbons < 2:
             return ""
