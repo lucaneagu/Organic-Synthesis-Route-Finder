@@ -5,25 +5,25 @@
 <title>Organic Synthesis Route Finder</title>
 <style>
   /* ---------------------------------------------------------------
-     Palette taken from the reaction every A-level student watches:
-     orange dichromate(VI) oxidising to green chromium(III).
+     Greyscale palette. "accent" is the strongest grey, used for
+     buttons and step numbers; "product" marks the target compound.
      --------------------------------------------------------------- */
   :root {
-    --paper: #eef2ef;
+    --paper: #f0f0f0;
     --card: #ffffff;
-    --card-2: #f6f8f6;
-    --ink: #111a16;
-    --ink-soft: #46564f;
-    --ink-faint: #6f807a;
-    --rule: #d3ddd7;
-    --rule-strong: #b3c2ba;
-    --accent: #c25400;          /* dichromate orange */
-    --accent-soft: #fbeadc;
-    --product: #1c7048;         /* chromium(III) green */
-    --product-soft: #e0efe6;
-    --warn: #8a5a00;
-    --warn-soft: #fdf1d8;
-    --shadow: 0 1px 2px rgba(17, 26, 22, .06), 0 8px 24px -12px rgba(17, 26, 22, .18);
+    --card-2: #f6f6f6;
+    --ink: #111111;
+    --ink-soft: #4a4a4a;
+    --ink-faint: #737373;
+    --rule: #d9d9d9;
+    --rule-strong: #b8b8b8;
+    --accent: #1f1f1f;
+    --accent-soft: #e6e6e6;
+    --product: #4d4d4d;
+    --product-soft: #ebebeb;
+    --warn: #333333;
+    --warn-soft: #e8e8e8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px -12px rgba(0, 0, 0, .18);
 
     --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
     --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -32,39 +32,39 @@
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #0e1412;
-      --card: #161e1a;
-      --card-2: #1b2521;
-      --ink: #e7efea;
-      --ink-soft: #a9b8b1;
-      --ink-faint: #7d8d86;
-      --rule: #2a3733;
-      --rule-strong: #3d4d47;
-      --accent: #ff9040;
-      --accent-soft: #34220f;
-      --product: #58bd8a;
-      --product-soft: #12281d;
-      --warn: #e0b45f;
-      --warn-soft: #2c2314;
+      --paper: #121212;
+      --card: #1b1b1b;
+      --card-2: #222222;
+      --ink: #ececec;
+      --ink-soft: #b3b3b3;
+      --ink-faint: #8c8c8c;
+      --rule: #2e2e2e;
+      --rule-strong: #454545;
+      --accent: #f2f2f2;
+      --accent-soft: #2e2e2e;
+      --product: #c4c4c4;
+      --product-soft: #262626;
+      --warn: #d6d6d6;
+      --warn-soft: #2b2b2b;
       --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
     }
   }
 
   :root[data-theme="dark"] {
-    --paper: #0e1412;
-    --card: #161e1a;
-    --card-2: #1b2521;
-    --ink: #e7efea;
-    --ink-soft: #a9b8b1;
-    --ink-faint: #7d8d86;
-    --rule: #2a3733;
-    --rule-strong: #3d4d47;
-    --accent: #ff9040;
-    --accent-soft: #34220f;
-    --product: #58bd8a;
-    --product-soft: #12281d;
-    --warn: #e0b45f;
-    --warn-soft: #2c2314;
+    --paper: #121212;
+    --card: #1b1b1b;
+    --card-2: #222222;
+    --ink: #ececec;
+    --ink-soft: #b3b3b3;
+    --ink-faint: #8c8c8c;
+    --rule: #2e2e2e;
+    --rule-strong: #454545;
+    --accent: #f2f2f2;
+    --accent-soft: #2e2e2e;
+    --product: #c4c4c4;
+    --product-soft: #262626;
+    --warn: #d6d6d6;
+    --warn-soft: #2b2b2b;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
   }
 
