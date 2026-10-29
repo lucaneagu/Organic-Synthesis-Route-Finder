@@ -193,9 +193,4 @@ step's product really is the next step's starting material. They also check
 that every flash card is a complete route, that every past-paper card names a
 real 2019–2024 paper, and that every classic card matches the reaction map.
 
-## A warning
 
-This is a revision aid, not a lab manual. It gives the reagents and conditions
-that AQA expect in an answer; it does not know about safety, yield, purification
-or anything that happens in a real fume cupboard. Always check your route
-against your own textbook and mark scheme.
